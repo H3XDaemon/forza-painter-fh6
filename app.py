@@ -375,6 +375,10 @@ class App:
         self.root.geometry("1180x780")
         self.lang = "en"
         self.queue = queue.Queue()
+        self.shutdown_event = threading.Event()
+        self.active_processes = set()
+        self.process_lock = threading.Lock()
+        self.closed = False
         self.settings = load_settings()
         self.images = [Path(path) for path in initial_images if Path(path).exists()]
         self.json_files = []
@@ -401,12 +405,57 @@ class App:
         self.inspect_table_value = StringVar()
         self.advanced_visible = False
         self._build()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.refresh_processes()
         if self.settings:
             self.selected_profile.set(self.settings[min(2, len(self.settings) - 1)]["label"])
             self._update_setting_description()
         self._render_lists()
         self._poll_queue()
+
+    def _register_process(self, proc):
+        with self.process_lock:
+            self.active_processes.add(proc)
+
+    def _unregister_process(self, proc):
+        with self.process_lock:
+            self.active_processes.discard(proc)
+
+    def _terminate_process(self, proc):
+        if proc.poll() is not None:
+            return
+        try:
+            if os.name == "nt":
+                subprocess.run(
+                    ["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                    timeout=5,
+                )
+            else:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+        except Exception:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+
+    def _terminate_active_processes(self):
+        with self.process_lock:
+            processes = list(self.active_processes)
+        for proc in processes:
+            self._terminate_process(proc)
+
+    def on_close(self):
+        self.closed = True
+        self.shutdown_event.set()
+        self._terminate_active_processes()
+        self.root.destroy()
 
     def _label(self, parent, key, **kwargs):
         widget = Label(parent, text=tr(self.lang, key), **kwargs)
@@ -876,6 +925,7 @@ class App:
         if not GENERATOR_EXE.exists():
             self.log_line(f"Missing generator: {GENERATOR_EXE}")
             return
+        self.shutdown_event.clear()
         self.status.set(tr(self.lang, "running"))
         threading.Thread(target=self._generate_worker, args=(setting,), daemon=True).start()
 
@@ -883,6 +933,9 @@ class App:
         try:
             self.queue.put(("log", f"Selected profile: {setting['path'].name}"))
             for image_path in list(self.images):
+                if self.shutdown_event.is_set():
+                    self.queue.put(("status", tr(self.lang, "failed")))
+                    return
                 before = {path.resolve() for path in generated_jsons(image_path)}
                 preview_path = generator_preview_path(image_path)
                 if preview_path.exists():
@@ -905,33 +958,43 @@ class App:
                     errors="replace",
                     creationflags=flags,
                 )
+                self._register_process(proc)
 
                 last_preview = None
                 last_preview_mtime = None
                 last_progress_log = None
-                while proc.poll() is None:
-                    line = proc.stdout.readline()
-                    if line:
+                try:
+                    while proc.poll() is None:
+                        if self.shutdown_event.is_set():
+                            self._terminate_process(proc)
+                            self.queue.put(("status", tr(self.lang, "failed")))
+                            return
+                        line = proc.stdout.readline()
+                        if line:
+                            friendly = self.friendly_generator_line(line)
+                            if friendly and friendly != last_progress_log:
+                                last_progress_log = friendly
+                                self.queue.put(("log", friendly))
+                        preview_files = generated_preview_files(image_path)
+                        if preview_files:
+                            newest_preview = preview_files[0]
+                            preview_mtime = newest_preview.stat().st_mtime
+                            if preview_mtime != last_preview_mtime:
+                                last_preview_mtime = preview_mtime
+                                self.queue.put(("preview_file", newest_preview))
+                        newest = generated_jsons(image_path)
+                        if newest and newest[0] != last_preview:
+                            last_preview = newest[0]
+                        time.sleep(0.1)
+                    if self.shutdown_event.is_set():
+                        return
+                    for line in proc.stdout.read().splitlines():
                         friendly = self.friendly_generator_line(line)
                         if friendly and friendly != last_progress_log:
                             last_progress_log = friendly
                             self.queue.put(("log", friendly))
-                    preview_files = generated_preview_files(image_path)
-                    if preview_files:
-                        newest_preview = preview_files[0]
-                        preview_mtime = newest_preview.stat().st_mtime
-                        if preview_mtime != last_preview_mtime:
-                            last_preview_mtime = preview_mtime
-                            self.queue.put(("preview_file", newest_preview))
-                    newest = generated_jsons(image_path)
-                    if newest and newest[0] != last_preview:
-                        last_preview = newest[0]
-                    time.sleep(0.1)
-                for line in proc.stdout.read().splitlines():
-                    friendly = self.friendly_generator_line(line)
-                    if friendly and friendly != last_progress_log:
-                        last_progress_log = friendly
-                        self.queue.put(("log", friendly))
+                finally:
+                    self._unregister_process(proc)
                 if proc.returncode != 0:
                     self.queue.put(("log", f"Generator exited with code {proc.returncode}."))
                     self.queue.put(("status", tr(self.lang, "failed")))
@@ -986,25 +1049,34 @@ class App:
             creationflags=flags,
             env=env,
         )
+        self._register_process(proc)
         started = time.time()
-        while True:
-            line = proc.stdout.readline()
-            if line:
+        try:
+            while True:
+                if self.shutdown_event.is_set():
+                    self._terminate_process(proc)
+                    return 130
+                line = proc.stdout.readline()
+                if line:
+                    friendly = self._friendly_subprocess_line(line.rstrip())
+                    if friendly:
+                        self.queue.put(("log", friendly))
+                if proc.poll() is not None:
+                    break
+                if timeout and time.time() - started > timeout:
+                    self._terminate_process(proc)
+                    self.queue.put(("log", f"Timed out after {timeout} seconds."))
+                    return 124
+                time.sleep(0.05)
+            if self.shutdown_event.is_set():
+                return 130
+            for line in proc.stdout.read().splitlines():
                 friendly = self._friendly_subprocess_line(line.rstrip())
                 if friendly:
                     self.queue.put(("log", friendly))
-            if proc.poll() is not None:
-                break
-            if timeout and time.time() - started > timeout:
-                proc.kill()
-                self.queue.put(("log", f"Timed out after {timeout} seconds."))
-                return 124
-            time.sleep(0.05)
-        for line in proc.stdout.read().splitlines():
-            friendly = self._friendly_subprocess_line(line.rstrip())
-            if friendly:
-                self.queue.put(("log", friendly))
-        return proc.returncode
+            return proc.returncode
+        finally:
+            self._unregister_process(proc)
 
     def _friendly_command_name(self, cmd):
         joined = " ".join(str(x) for x in cmd)
@@ -1250,6 +1322,8 @@ class App:
         self.queue.put(("status", tr(self.lang, "done") if code == 0 else tr(self.lang, "failed")))
 
     def _poll_queue(self):
+        if self.closed:
+            return
         while True:
             try:
                 kind, payload = self.queue.get_nowait()
@@ -1265,7 +1339,8 @@ class App:
                 self.show_preview_file(payload)
             elif kind == "render_lists":
                 self._render_lists()
-        self.root.after(100, self._poll_queue)
+        if not self.closed:
+            self.root.after(100, self._poll_queue)
 
     def run(self):
         self.root.mainloop()
