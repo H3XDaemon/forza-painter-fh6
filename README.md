@@ -4,6 +4,8 @@
 
 Generate Forza Horizon 6 Vinyl Group layers from images. The desktop app handles generation, preview, and import in one place. Normal users do not need to type memory addresses.
 
+> **If the result looks blurry:** raise `Random samples` first. Values above **200000** usually make a major quality difference; higher values are clearer but take much longer to generate.
+
 > Import walkthrough video: https://www.bilibili.com/video/BV1hG5Z6nENZ  
 > GPU generator reference: https://github.com/zjl88858/forza-painter-geometrize-gpu
 
@@ -77,15 +79,15 @@ image.3000.json
 
 One image can generate multiple checkpoint JSON files. Prefer the highest-layer JSON that matches your template; for example, use `image.3000.json` or the final `image.json` with a 3000-layer template. Importing a 500-layer JSON into a 3000-layer template will look blurry.
 
-The left panel can scroll. In small windows, the generate button stays fixed at the bottom.
+Current preset differences:
 
-Recommended quality choices:
-
-| Goal | Recommendation |
-| --- | --- |
-| Quick composition test | Lower layers and a fast preset |
-| Normal use | balanced or slow |
-| Maximum clarity | Higher Output layers and a larger template |
+| Preset | Output layers | Random samples | Use case |
+| --- | ---: | ---: | --- |
+| extremely fast | 500 | 30000 | Quick composition checks |
+| fast | 1000 | 60000 | Quick usable drafts |
+| balanced | 1800 | 120000 | Recommended default |
+| slow | 2500 | 220000 | Final quality; starts using the 200k+ quality range |
+| super slow | 3000 | 350000 | Best clarity, very slow |
 
 ## Quality And Custom Settings
 
@@ -94,7 +96,7 @@ Later presets are usually slower and cleaner.
 - `extremely fast`: quick composition tests.
 - `fast`: quick usable output.
 - `balanced`: recommended default.
-- `slow`: higher quality.
+- `slow`: higher quality and 200k+ random samples.
 - `super slow`: slowest bundled preset for final output.
 
 Custom settings only affect the current run. Common fields:

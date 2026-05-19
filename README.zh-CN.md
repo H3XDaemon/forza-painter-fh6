@@ -4,6 +4,8 @@
 
 把图片转换成 Forza Horizon 6 的 Vinyl Group 图层。软件内完成生成、预览和导入，普通用户不需要手动填写内存地址。
 
+> **画面发糊先看这里：** 优先提高生成页里的 `Random samples / 随机样本`。随机样本数在 **200000 以上** 通常会有明显质变；数值越高越清晰，但生成时间也会明显增加。
+
 > 导入参考视频：https://www.bilibili.com/video/BV1hG5Z6nENZ  
 > GPU 生成器参考：https://github.com/zjl88858/forza-painter-geometrize-gpu
 
@@ -76,13 +78,15 @@ check_environment.bat
 
 同一张图片可能会生成多个 checkpoint JSON。导入时优先使用层数最高、最接近模板层数的 JSON；例如 3000 层模板应优先导入 `image.3000.json` 或最终 `image.json`。如果把 500 层 JSON 导入 3000 层模板，画面会明显发糊。
 
-常用品质建议：
+当前预设大致区别：
 
-| 目标 | 建议 |
-| --- | --- |
-| 快速测试构图 | 低层数、快速预设 |
-| 正常使用 | balanced 或 slow |
-| 尽量清晰 | 提高 Output layers，并使用更大的模板 |
+| 预设 | 输出层数 | 随机样本 | 用途 |
+| --- | ---: | ---: | --- |
+| extremely fast | 500 | 30000 | 快速看构图 |
+| fast | 1000 | 60000 | 快速出可用稿 |
+| balanced | 1800 | 120000 | 默认建议 |
+| slow | 2500 | 220000 | 成品质量，开始进入明显提升区间 |
+| super slow | 3000 | 350000 | 最高清晰度，耗时很长 |
 
 ## 准备 FH6
 
