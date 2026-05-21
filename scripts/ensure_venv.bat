@@ -14,17 +14,19 @@ if exist "%VENV_PYTHON%" (
         exit /b 0
     )
     echo Project virtual environment exists but core dependencies are missing.
-) else (
-    call :find_python
-    if errorlevel 1 (
-        echo No usable Python was found. Install 64-bit Python 3.10 to 3.13, then run this again.
-        exit /b 1
-    )
-    echo Creating project virtual environment: %VENV_DIR%
-    %PYTHON_CMD% -m venv "%VENV_DIR%"
-    if errorlevel 1 goto Failed
+    goto HaveVenv
 )
 
+call :find_python
+if errorlevel 1 (
+    echo No usable Python was found. Install 64-bit Python 3.10 to 3.13, then run this again.
+    exit /b 1
+)
+echo Creating project virtual environment: %VENV_DIR%
+%PYTHON_CMD% -m venv "%VENV_DIR%"
+if errorlevel 1 goto Failed
+
+:HaveVenv
 if not exist "%VENV_PYTHON%" (
     echo Virtual environment was not created correctly: %VENV_PYTHON%
     goto Failed

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.2 / 2026-05-22
+
+- Added a PyInstaller-based one-file EXE so normal users no longer need to install Python, create `.venv`, or keep helper files beside the app.
+- The GUI EXE now re-launches itself in hidden helper mode for import and FH6 memory probing.
+- The Tools page and startup log now show where external runtime/cache files are stored.
+- Fixed the batch bootstrap variable-expansion bug that could run `-m venv` instead of `python -m venv`.
+- Added a repeatable `scripts/make_exe_release.ps1` build script for the one-file EXE package.
+
 ## v1.5.1 / 2026-05-22
 
 - Fixed startup dependency installation when a project `.venv` exists but its Python does not have `pip`; the bootstrapper now runs `ensurepip --upgrade` before installing requirements.

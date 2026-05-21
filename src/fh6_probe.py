@@ -11,6 +11,7 @@ from pathlib import Path
 
 import psutil
 
+from app_paths import ROOT, SOURCE_DIR
 from game_profiles import get_profile
 from native import dereference_pointer, get_base_address, read_int, read_process_memory
 
@@ -23,8 +24,7 @@ PAGE_GUARD = 0x100
 PAGE_READONLY = 0x02
 PAGE_READWRITE = 0x04
 READABLE_WRITABLE_MASK = 0xCC
-APP_DIR = Path(__file__).resolve().parent
-ROOT = APP_DIR.parent
+APP_DIR = SOURCE_DIR
 
 
 class MEMORY_BASIC_INFORMATION(ctypes.Structure):

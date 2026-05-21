@@ -18,14 +18,14 @@ from tkinter import BOTH, END, LEFT, RIGHT, X, Button, Canvas, Checkbutton, Entr
 
 import psutil
 
+from app_paths import ROOT, SOURCE_DIR
 from game_profiles import PROFILES
 from geometry_json import RECTANGLE, ROTATED_ELLIPSE, load_normalized_geometry
 from generator_backend import GENERATOR_EXE, best_geometry_jsons, build_generator_command, generated_jsons, generated_preview_files, generator_preview_path, load_settings, write_custom_settings
 from version import APP_DISPLAY_NAME, __version__, app_title
 
 
-APP_DIR = Path(__file__).resolve().parent
-ROOT = APP_DIR.parent
+APP_DIR = SOURCE_DIR
 PROBE_DIR = ROOT / "webui-data" / "probes"
 SESSION_PATH = PROBE_DIR / "current-fh6-session.json"
 MEMORY_SNAPSHOT_LIMIT_MB = 2048
@@ -154,6 +154,9 @@ TEXT = {
         "update_check_failed_message": "Could not check for updates. You can keep using the app.\n\n{error}",
         "update_current": "Already on the latest version.",
         "changelog": "Changelog",
+        "runtime_folder": "Runtime/cache folder",
+        "open_runtime_folder": "Open runtime folder",
+        "runtime_location": "Runtime/cache files are stored beside the app: {runtime}. FH6 probe cache: {probe}.",
         "tutorial": """Beginner workflow
 
 1. Install 64-bit Python 3.12 if possible, then run install_dependencies.bat.
@@ -272,6 +275,9 @@ Notes
         "update_check_failed_message": "无法检查更新。你可以继续使用当前版本。\n\n{error}",
         "update_current": "当前已经是最新版本。",
         "changelog": "更新内容",
+        "runtime_folder": "运行/缓存目录",
+        "open_runtime_folder": "打开运行缓存目录",
+        "runtime_location": "运行缓存文件会保存在软件旁边：{runtime}。FH6 定位缓存：{probe}。",
         "tutorial": """小白流程
 
 1. 尽量安装 64 位 Python 3.12，然后运行 install_dependencies.bat。
@@ -390,6 +396,9 @@ Notes
         "update_check_failed_message": "업데이트를 확인하지 못했습니다. 현재 버전을 계속 사용할 수 있습니다.\n\n{error}",
         "update_current": "현재 최신 버전입니다.",
         "changelog": "변경 내역",
+        "runtime_folder": "런타임/캐시 폴더",
+        "open_runtime_folder": "런타임 폴더 열기",
+        "runtime_location": "런타임/캐시 파일은 앱 옆에 저장됩니다: {runtime}. FH6 probe cache: {probe}.",
         "tutorial": """초보자용 작업 순서
 
 1. 가능하면 64비트 Python 3.12를 설치한 뒤 install_dependencies.bat을 실행하세요.
@@ -467,6 +476,29 @@ def extract_changelog_section(changelog, version):
     next_match = next_heading.search(text, match.end())
     end = next_match.start() if next_match else len(text)
     return text[match.start():end].strip()[:6000]
+
+
+def helper_command(helper_name):
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--helper", helper_name]
+    return [sys.executable, APP_DIR / f"{helper_name}.py"]
+
+
+def run_embedded_helper(helper_name, args):
+    if helper_name == "fh6_probe":
+        import fh6_probe
+
+        previous_argv = sys.argv
+        try:
+            sys.argv = ["fh6_probe.py", *args]
+            return fh6_probe.main()
+        finally:
+            sys.argv = previous_argv
+    if helper_name == "main":
+        import main as importer_main
+
+        return importer_main.main(["main.py", *args])
+    raise SystemExit(f"Unknown helper: {helper_name}")
 
 
 def game_processes():
@@ -679,6 +711,7 @@ class App:
         self.count_address = StringVar()
         self.table_address = StringVar()
         self.inspect_table_value = StringVar()
+        self.runtime_folder = StringVar(value=str(ROOT))
         self.advanced_visible = False
         self._build()
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -687,6 +720,7 @@ class App:
             self.selected_profile.set(self.settings[min(2, len(self.settings) - 1)]["label"])
             self._update_setting_description()
         self._render_lists()
+        self.log_line(tr(self.lang, "runtime_location").format(runtime=ROOT / "runtime", probe=PROBE_DIR.parent))
         self._poll_queue()
         self.root.after(1000, self.start_update_check)
 
@@ -1167,6 +1201,8 @@ class App:
         self._field(form, "snapshot_count", self.snapshot_count, row=1)
         self._field(form, "current_count", self.current_count, row=2)
         self._field(form, "table_address", self.inspect_table_value, row=3)
+        runtime_entry = self._field(form, "runtime_folder", self.runtime_folder, row=4)
+        runtime_entry.config(state="readonly")
         actions = Frame(self.tools_tab)
         actions.pack(fill=X, padx=10, pady=8)
         self._button(actions, "diagnose", self.start_diagnose).pack(side=LEFT)
@@ -1174,6 +1210,7 @@ class App:
         self._button(actions, "save_snapshot", self.start_save_snapshot).pack(side=LEFT, padx=6)
         self._button(actions, "compare_snapshot", self.start_compare_snapshot).pack(side=LEFT, padx=6)
         self._button(actions, "inspect_table", self.start_inspect_table).pack(side=LEFT, padx=6)
+        self._button(actions, "open_runtime_folder", self.open_runtime_folder).pack(side=LEFT, padx=6)
 
     def _build_tutorial_tab(self):
         self.tutorial_text = Text(self.tutorial_tab, wrap="word")
@@ -1991,6 +2028,10 @@ class App:
         if folder and folder.exists():
             os.startfile(folder)
 
+    def open_runtime_folder(self):
+        ROOT.mkdir(parents=True, exist_ok=True)
+        os.startfile(ROOT)
+
     def run_subprocess(self, cmd, timeout=None):
         self._record_detail(f"HELPER COMMAND: {self._format_command(cmd)}")
         self.queue.put(("log", self._friendly_command_name(cmd)))
@@ -2123,8 +2164,7 @@ class App:
     def _auto_locate_worker(self, pid, layer_count):
         clear_session_location()
         cmd = [
-            sys.executable,
-            APP_DIR / "fh6_probe.py",
+            *helper_command("fh6_probe"),
             "--game",
             self.selected_game.get() or "fh6",
             "--pid",
@@ -2189,7 +2229,7 @@ class App:
         for path in list(self.json_files):
             if game == "fh6" and layer_count:
                 self._check_json_layer_fit(path, layer_count)
-            cmd = [sys.executable, APP_DIR / "main.py", "--game", game, "--no-preview"]
+            cmd = [*helper_command("main"), "--game", game, "--no-preview"]
             if pid:
                 cmd.extend(["--pid", str(pid)])
             if count_address:
@@ -2207,7 +2247,7 @@ class App:
 
     def start_diagnose(self):
         pid = self.ensure_live_game_pid()
-        cmd = [sys.executable, APP_DIR / "main.py", "--game", self.selected_game.get() or "fh6", "--diagnose"]
+        cmd = [*helper_command("main"), "--game", self.selected_game.get() or "fh6", "--diagnose"]
         if pid:
             cmd.extend(["--pid", str(pid)])
         self.status.set(tr(self.lang, "running"))
@@ -2221,8 +2261,7 @@ class App:
             return
         output_path = PROBE_DIR / f"memory-count-{count}.jsonl"
         cmd = [
-            sys.executable,
-            APP_DIR / "fh6_probe.py",
+            *helper_command("fh6_probe"),
             "--game",
             self.selected_game.get() or "fh6",
             "--pid",
@@ -2248,8 +2287,7 @@ class App:
         candidates_path = PROBE_DIR / f"memory-count-{previous}-to-{current}-candidates.json"
         intersect_path = PROBE_DIR / f"memory-count-{int(previous) - 1}-to-{previous}-candidates.json"
         cmd = [
-            sys.executable,
-            APP_DIR / "fh6_probe.py",
+            *helper_command("fh6_probe"),
             "--game",
             self.selected_game.get() or "fh6",
             "--pid",
@@ -2276,8 +2314,7 @@ class App:
             self.log_line("PID, layer count, and table address are required.")
             return
         cmd = [
-            sys.executable,
-            APP_DIR / "fh6_probe.py",
+            *helper_command("fh6_probe"),
             "--game",
             self.selected_game.get() or "fh6",
             "--pid",
@@ -2343,6 +2380,9 @@ class App:
 
 
 def main():
+    if len(sys.argv) >= 3 and sys.argv[1] == "--helper":
+        run_embedded_helper(sys.argv[2], sys.argv[3:])
+        return
     parser = argparse.ArgumentParser(description=f"Standalone {APP_DISPLAY_NAME} desktop app.")
     parser.add_argument("--version", action="version", version=f"{APP_DISPLAY_NAME} {__version__}")
     parser.add_argument("images", nargs="*", help="Optional image files to preload.")

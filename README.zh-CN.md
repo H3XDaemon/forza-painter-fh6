@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <code>v1.5.1</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
+  <code>v1.5.2</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
 </p>
 
 把 PNG/JPG/BMP 图片转换成 Forza Horizon 6 的 Vinyl Group 图层。软件内完成生成、预览和导入，普通用户不需要手动填写内存地址。
@@ -26,7 +26,7 @@
 
 > **自动更新检查：** v1.5.0 启动时会检查新版本。检查失败会在右上角显示小 `!`；发现新版本会显示更新内容和更新页面按钮。
 
-> **启动修复：** v1.5.1 会自动修复已创建但缺少 `pip` 的项目 `.venv`，并在发布包没有完整解压时给出更明确的提示。
+> **启动修复：** v1.5.2 增加普通用户用的真正单文件 EXE，并修复 Python/venv 版剩余的批处理启动问题。
 
 > **导入过慢：** v1.4.1 起会依次尝试 v1.3 和 v1.4 两套 FH6 模板定位逻辑，并在必要时使用 RTTI fallback。自动定位最长可能需要 5 分钟；请保持 FH6 停留在 Vinyl Group Editor，不要切换菜单，若仍失败请导出详细日志并提交 issue。
 
@@ -69,9 +69,9 @@
 
 ## 快速开始
 
-1. 下载仓库 ZIP 并解压。
-2. 安装 64 位 Python，推荐 Python 3.12。
-3. 双击 `start_app.bat` 打开软件。首次运行会自动创建 `.venv`、安装缺失依赖，然后启动软件。
+1. 推荐：下载 `forza-painter-fh6-v1.5.2.exe`，直接运行。
+2. 仅源码 ZIP 用户需要安装 64 位 Python，然后双击 `start_app.bat`。
+3. 源码 ZIP 首次运行时，`start_app.bat` 会自动创建 `.venv`、安装缺失依赖，然后启动软件。
 4. 在游戏里进入 Vinyl Group Editor，加载并 Ungroup 球形模板。
 5. 在软件里生成 JSON，切到 Import 页面，填写模板层数后导入。
 
@@ -157,6 +157,14 @@ check_environment.bat
 - 如果导入后画面很糊，通常是导入了较低层数 checkpoint，或者生成时 `Output layers` 设置太低。
 
 ## 更新日志
+
+### v1.5.2 / 2026-05-22
+
+- 版本更新到 `v1.5.2`，发布包名称同步为 `forza-painter-fh6-v1.5.2.zip`、`forza-painter-fh6-v1.5.2.exe` 和 `forza-painter-fh6-v1.5.2-onefile.zip`。
+- 增加基于 PyInstaller 的单文件 EXE，普通用户不再需要安装 Python、创建 `.venv` 或保留额外 helper 文件。
+- GUI EXE 现在会用自身的隐藏 helper 模式执行导入和 FH6 内存定位。
+- Tools 页面和启动日志会显示外部运行/缓存文件保存位置。
+- 修复批处理启动器变量提前展开的问题，避免执行成 `-m venv` 而不是 `python -m venv`。
 
 ### v1.5.1 / 2026-05-22
 

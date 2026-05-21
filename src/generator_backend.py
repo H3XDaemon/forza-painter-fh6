@@ -1,13 +1,12 @@
 from pathlib import Path
 import re
 
+from app_paths import RESOURCE_ROOT, ROOT
 from geometry_json import drawable_shape_count
 
 
-APP_DIR = Path(__file__).resolve().parent
-ROOT = APP_DIR.parent
-SETTINGS_DIR = ROOT / "config" / "settings"
-GENERATOR_EXE = ROOT / "bin" / "forza-painter-geometrize-go.exe"
+SETTINGS_DIR = RESOURCE_ROOT / "config" / "settings"
+GENERATOR_EXE = RESOURCE_ROOT / "bin" / "forza-painter-geometrize-go.exe"
 PREVIEW_DIR = ROOT / "runtime" / "previews"
 CUSTOM_SETTINGS_DIR = ROOT / "runtime" / "custom-settings"
 

@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <code>v1.5.1</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
+  <code>v1.5.2</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
 </p>
 
 Generate Forza Horizon 6 Vinyl Group layers from PNG/JPG/BMP images. The desktop app handles generation, preview, and import in one place; normal users do not need to type memory addresses.
@@ -26,7 +26,7 @@ Generate Forza Horizon 6 Vinyl Group layers from PNG/JPG/BMP images. The desktop
 
 > **Update check:** v1.5.0 checks for new versions on startup. Failed checks show a small `!` in the top-right; newer versions show changelog notes and an update-page button.
 
-> **Startup fix:** v1.5.1 repairs project `.venv` folders that were created without `pip`, and shows a clearer message if the release ZIP was not fully extracted.
+> **Startup fix:** v1.5.2 adds a true one-file EXE for normal users and fixes the remaining batch bootstrap bug in the Python/venv package.
 
 >  **Import is too slow:** The new version (v1.4.1+) tries both the v1.3 and v1.4 FH6 template locators, then falls back to RTTI scanning. Auto-location can take up to 5 minutes; keep FH6 in Vinyl Group Editor and attach an exported detailed log if it still fails.
 
@@ -69,9 +69,9 @@ Generate Forza Horizon 6 Vinyl Group layers from PNG/JPG/BMP images. The desktop
 
 ## Quick Start
 
-1. Download this repository as a ZIP and extract it.
-2. Install 64-bit Python. Python 3.12 is recommended.
-3. Double-click `start_app.bat`. On first run it creates `.venv`, installs missing dependencies, and then starts the app.
+1. Recommended: download `forza-painter-fh6-v1.5.2.exe` and run it directly.
+2. Source ZIP users only: install 64-bit Python, then double-click `start_app.bat`.
+3. On first source-ZIP run, `start_app.bat` creates `.venv`, installs missing dependencies, and starts the app.
 4. In FH6, open Vinyl Group Editor, load a sphere template, then Ungroup it.
 5. Generate JSON in the app, open the Import page, enter the template layer count, then import.
 
@@ -179,6 +179,14 @@ The app locates and verifies the current FH6 layer table before writing. If the 
 - Transparent PNG backgrounds are not imported as visible backgrounds.
 
 ## Changelog
+
+### v1.5.2 / 2026-05-22
+
+- Updated the app version to `v1.5.2`; release packages now use `forza-painter-fh6-v1.5.2.zip`, `forza-painter-fh6-v1.5.2.exe`, and `forza-painter-fh6-v1.5.2-onefile.zip`.
+- Added a PyInstaller-based one-file EXE so normal users no longer need to install Python, create `.venv`, or keep helper files beside the app.
+- The GUI EXE now re-launches itself in hidden helper mode for import and FH6 memory probing.
+- The Tools page and startup log now show where external runtime/cache files are stored.
+- Fixed the batch bootstrap variable-expansion bug that could run `-m venv` instead of `python -m venv`.
 
 ### v1.5.1 / 2026-05-22
 

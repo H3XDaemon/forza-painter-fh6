@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <code>v1.5.1</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
+  <code>v1.5.2</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
 </p>
 
 PNG/JPG/BMP 이미지를 Forza Horizon 6 비닐 그룹 레이어용 geometry JSON으로 변환합니다. 데스크톱 앱에서 JSON 생성, 미리보기, FH6 가져오기를 한 번에 처리할 수 있으며 일반 사용자는 메모리 주소를 직접 입력하지 않아도 됩니다.
@@ -26,7 +26,7 @@ PNG/JPG/BMP 이미지를 Forza Horizon 6 비닐 그룹 레이어용 geometry JSO
 
 > **업데이트 확인:** v1.5.0은 시작 시 새 버전을 확인합니다. 확인에 실패하면 오른쪽 위에 작은 `!`가 표시되고, 새 버전이 있으면 변경 내역과 업데이트 페이지 버튼이 표시됩니다.
 
-> **시작 문제 수정:** v1.5.1은 `pip` 없이 만들어진 프로젝트 `.venv`를 자동으로 복구하며, 릴리스 ZIP을 완전히 압축 해제하지 않은 경우 더 명확한 안내를 표시합니다.
+> **시작 문제 수정:** v1.5.2는 일반 사용자용 단일 EXE를 추가하고 Python/venv 패키지의 남은 배치 부트스트랩 문제를 수정합니다.
 
 > **가져오기가 너무 느리면:** v1.4.1부터는 v1.3 및 v1.4 FH6 템플릿 찾기 방식을 모두 시도한 뒤 필요하면 RTTI fallback을 사용합니다. 자동 찾기는 최대 5분 정도 걸릴 수 있으므로 FH6를 Vinyl Group Editor에 그대로 두고 메뉴를 전환하지 마세요. 그래도 실패하면 자세한 로그를 내보내 이슈에 첨부해 주세요.
 
@@ -34,7 +34,7 @@ PNG/JPG/BMP 이미지를 Forza Horizon 6 비닐 그룹 레이어용 geometry JSO
 
 1. 이 저장소를 ZIP으로 내려받아 압축을 풉니다.
 2. 64비트 Python을 설치합니다. Python 3.12를 권장합니다.
-3. `start_app.bat`을 더블클릭합니다. 첫 실행 시 `.venv`를 만들고 누락된 의존성을 설치한 뒤 앱을 시작합니다.
+3. 권장: `forza-painter-fh6-v1.5.2.exe`를 내려받아 바로 실행합니다. 소스 ZIP 사용자는 `start_app.bat`을 실행하세요.
 4. FH6에서 Vinyl Group Editor를 열고 sphere 템플릿을 불러온 뒤 Ungroup합니다.
 5. 앱에서 JSON을 생성하고, Import 페이지에서 템플릿 레이어 수를 입력한 뒤 가져오기를 실행합니다.
 
