@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <code>v1.2.0</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
+  <code>v1.3.0</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
 </p>
 
 把 PNG/JPG/BMP 图片转换成 Forza Horizon 6 的 Vinyl Group 图层。软件内完成生成、预览和导入，普通用户不需要手动填写内存地址。
@@ -146,6 +146,15 @@ check_environment.bat
 - 如果导入后画面很糊，通常是导入了较低层数 checkpoint，或者生成时 `Output layers` 设置太低。
 
 ## 更新日志
+
+### v1.3.0 / 2026-05-21
+
+- 版本更新到 `v1.3.0`，发布包名称同步为 `forza-painter-fh6-v1.3.0.zip`。
+- 内置 GPU/OpenCL 生成器更新到上游 `canary-26052101`。
+- 引入上游生成器的显卡选择修复：优先选择显存最大的 NVIDIA GPU，减少有独显时误跑到核显的问题。
+- 生成日志现在会显示实际选中的 OpenCL 设备，方便确认是否跑在独显上。
+- 同步上游日志文案调整，把 `delta error` 改为 `DeltaE`，避免用户把正常评分日志误认为报错。
+- 改进 FH6 模板自动定位失败处理，避免定位失败后继续复用旧 session 并误报“已验证模板”。
 
 ### v1.2.0 / 2026-05-20
 

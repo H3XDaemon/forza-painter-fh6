@@ -291,6 +291,13 @@ def load_session_location():
         return None
 
 
+def clear_session_location():
+    try:
+        SESSION_PATH.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
 def session_pid_is_live(session, game):
     try:
         pid = int(session.get("pid", -1))
@@ -298,6 +305,20 @@ def session_pid_is_live(session, game):
         profile = PROFILES.get(game)
         return bool(profile and proc.name().lower() in [name.lower() for name in profile.process_names])
     except (psutil.Error, TypeError, ValueError):
+        return False
+
+
+def session_matches_current_import(session, game, pid, layer_count):
+    if not session:
+        return False
+    if str(session.get("layer_count", "")) != str(layer_count):
+        return False
+    if not session_pid_is_live(session, game):
+        return False
+    try:
+        session_pid = int(session.get("pid", -1))
+        return not pid or int(pid) == session_pid
+    except (TypeError, ValueError):
         return False
 
 
@@ -953,6 +974,10 @@ class App:
             return text
         if text.startswith("Settings:"):
             return text
+        if text.startswith("OpenCL: Selected device"):
+            return text
+        if text.startswith("Scoring mode:"):
+            return text
         if text in ("FINISHED",):
             return text
         if "error" in text.lower() or "failed" in text.lower() or "panic" in text.lower():
@@ -1404,6 +1429,7 @@ class App:
         threading.Thread(target=self._auto_locate_worker, args=(pid, layer_count), daemon=True).start()
 
     def _auto_locate_worker(self, pid, layer_count):
+        clear_session_location()
         cmd = [
             sys.executable,
             APP_DIR / "fh6_probe.py",
@@ -1426,11 +1452,14 @@ class App:
             "45",
         ]
         code = self.run_subprocess(cmd, timeout=70)
+        located = False
         if code == 0 and SESSION_PATH.exists():
             session = load_session_location()
-            if session:
+            if session_matches_current_import(session, self.selected_game.get() or "fh6", pid, layer_count):
                 self.queue.put(("log", tr(self.lang, "located")))
-        self.queue.put(("status", tr(self.lang, "done") if code == 0 else tr(self.lang, "failed")))
+                located = True
+        self.queue.put(("status", tr(self.lang, "done") if located else tr(self.lang, "failed")))
+        return located
 
     def start_import(self):
         if not self.json_files:
@@ -1447,20 +1476,18 @@ class App:
         layer_count = self.layer_count.get().strip()
         if not count_address and not table_address and game == "fh6":
             session = load_session_location()
-            session_count_matches = session and str(session.get("layer_count", "")) == str(layer_count)
-            if session and session_count_matches and session_pid_is_live(session, game) and (not pid or int(pid) == int(session.get("pid", -1))):
+            if session_matches_current_import(session, game, pid, layer_count):
                 pid = int(session["pid"])
                 count_address = "0x{:x}".format(int(session["count_address"]))
                 table_address = "0x{:x}".format(int(session["table_address"]))
                 self.queue.put(("log", tr(self.lang, "located")))
             elif pid and layer_count:
                 self.queue.put(("log", tr(self.lang, "locating")))
-                self._auto_locate_worker(pid, layer_count)
+                located = self._auto_locate_worker(pid, layer_count)
                 session = load_session_location()
-                if session and str(session.get("layer_count", "")) == str(layer_count) and session_pid_is_live(session, game):
+                if located and session_matches_current_import(session, game, pid, layer_count):
                     count_address = "0x{:x}".format(int(session["count_address"]))
                     table_address = "0x{:x}".format(int(session["table_address"]))
-                    self.queue.put(("log", tr(self.lang, "located")))
                 else:
                     self.queue.put(("status", tr(self.lang, "failed")))
                     return

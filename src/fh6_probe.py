@@ -615,11 +615,23 @@ def auto_locate_count_table(pid, profile, layer_count, limit_mb, max_matches, pr
     started = time.monotonic()
 
     if profile.key == "fh6":
-        fast_groups = locate_clivery_groups_by_layout_count(pid, profile, layer_count, max_seconds=max_seconds)
+        fast_groups = locate_clivery_groups_by_layout_count(
+            pid,
+            profile,
+            layer_count,
+            max_seconds=max_seconds,
+            max_candidates=max_matches,
+        )
     else:
         fast_groups = locate_clivery_groups_by_rtti(pid, profile, layer_count)
         if not fast_groups:
-            fast_groups = locate_clivery_groups_by_layout_count(pid, profile, layer_count, max_seconds=max_seconds)
+            fast_groups = locate_clivery_groups_by_layout_count(
+                pid,
+                profile,
+                layer_count,
+                max_seconds=max_seconds,
+                max_candidates=max_matches,
+            )
     if fast_groups:
         print(f"Fast FH6 layer group candidates: {len(fast_groups)}", flush=True)
         winner = fast_groups[0]
@@ -1323,7 +1335,7 @@ def main():
         inspect_count_address(args.pid, profile, args.inspect_count, args.layer_count, args.inspect_radius, args.blob_size)
         return
     if args.auto_locate:
-        auto_locate_count_table(
+        located = auto_locate_count_table(
             args.pid,
             profile,
             args.layer_count,
@@ -1334,6 +1346,8 @@ def main():
             args.write_session,
             args.max_seconds,
         )
+        if located is None:
+            sys.exit(2)
         return
     if args.inspect_table:
         print(f"Process: {psutil.Process(args.pid).name()} pid={args.pid}")

@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <code>v1.2.0</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
+  <code>v1.3.0</code> · <code>Windows</code> · <code>Forza Horizon 6</code> · <code>GPU/OpenCL</code>
 </p>
 
 Generate Forza Horizon 6 Vinyl Group layers from PNG/JPG/BMP images. The desktop app handles generation, preview, and import in one place; normal users do not need to type memory addresses.
@@ -168,6 +168,15 @@ The app locates and verifies the current FH6 layer table before writing. If the 
 - Transparent PNG backgrounds are not imported as visible backgrounds.
 
 ## Changelog
+
+### v1.3.0 / 2026-05-21
+
+- Updated the app version to `v1.3.0`; release packages now use `forza-painter-fh6-v1.3.0.zip`.
+- Updated the bundled GPU/OpenCL generator to upstream `canary-26052101`.
+- Added the upstream generator device-selection fix, which prioritizes NVIDIA GPUs with the most VRAM and helps avoid accidentally running generation on an integrated GPU.
+- Generation logs now show the selected OpenCL device, making GPU selection easier to confirm.
+- Adopted the upstream generator log wording change from `delta error` to `DeltaE`, reducing false error reports in generation logs.
+- Improved FH6 template auto-locate failure handling so stale session cache is not reported as a newly verified template.
 
 ### v1.2.0 / 2026-05-20
 
