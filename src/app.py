@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import io
 import json
 import math
@@ -613,8 +614,8 @@ def load_cv2():
     if _CV2_ERROR is not None:
         return None
     try:
-        import cv2
-        import numpy as np
+        cv2 = importlib.import_module("cv2")
+        np = importlib.import_module("numpy")
         _CV2_CACHE = (cv2, np)
         return _CV2_CACHE
     except BaseException as exc:
@@ -721,9 +722,12 @@ def render_source_image(path, max_size=None):
 
 
 def render_geometry_json(path, max_size=None):
+    pillow_preview = render_geometry_json_pillow(path, max_size)
+    if pillow_preview:
+        return pillow_preview
     loaded = load_cv2()
     if not loaded:
-        return render_geometry_json_pillow(path, max_size)
+        return None
     cv2, np = loaded
     try:
         data = load_normalized_geometry(path)
@@ -2673,13 +2677,8 @@ class App:
         table_address = parse_hex_or_empty(self.table_address.get())
         layer_count = self.layer_count.get().strip()
         if not count_address and not table_address and game == "fh6":
-            session = load_session_location()
-            if session_matches_current_import(session, game, pid, layer_count):
-                pid = int(session["pid"])
-                count_address = "0x{:x}".format(int(session["count_address"]))
-                table_address = "0x{:x}".format(int(session["table_address"]))
-                self.queue.put(("log", tr(self.lang, "located")))
-            elif pid and layer_count:
+            clear_session_location()
+            if pid and layer_count:
                 self.queue.put(("log", tr(self.lang, "locating")))
                 located = self._auto_locate_worker(pid, layer_count)
                 session = load_session_location()

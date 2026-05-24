@@ -7,6 +7,7 @@
 
 import sys
 import argparse
+import importlib
 import ctypes, sys
 import psutil
 import ctypes
@@ -45,8 +46,8 @@ def load_cv2():
     if _CV2_ERROR is not None:
         return None
     try:
-        import cv2
-        import numpy as np
+        cv2 = importlib.import_module("cv2")
+        np = importlib.import_module("numpy")
         _CV2_CACHE = (cv2, np)
         return _CV2_CACHE
     except BaseException as exc:

@@ -3,7 +3,6 @@ from pathlib import Path
 
 from app_paths import RESOURCE_ROOT, ROOT
 from geometry_json import drawable_shape_count
-from preprocess.luma import luma_band
 
 
 BUNDLED_SETTINGS_DIR = RESOURCE_ROOT / "config" / "settings"
@@ -166,6 +165,7 @@ def preprocess_input_image(image_path, setting):
     
     # Generate preprocessed image
     if mode == "luma_band":
+        luma_band = __import__("preprocess.luma", fromlist=["luma_band"]).luma_band
         return luma_band(image_path)
     else:
         raise ValueError(f"unsupported preprocess mode: {mode}")

@@ -149,6 +149,8 @@ Only versioned release entries are kept here. See [CHANGELOG.md](CHANGELOG.md) f
 - Integrated the upstream transparent-area overhang prevention algorithm adjustment.
 - Significantly improved generation quality for the large ellipse at the bottom of transparent images.
 - Disabled `luma_band` preprocessing by default in bundled presets.
+- Import no longer reuses stale FH6 session data from `webui-data`; it re-locates the current template before writing.
+- JSON previews now use one stable renderer path to avoid ellipse preview distortion differences between packaged EXE environments.
 
 ### v1.5.4 / 2026-05-23
 
