@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 from pathlib import Path
 
-def luma_bands(image_path):
+def luma_band(image_path):
     image_path = Path(image_path)
     rgba = cv2.imread(str(image_path), cv2.IMREAD_UNCHANGED)
     if rgba is None:
         raise ValueError(f"failed to read image: {image_path}")
     result = _apply_preprocess(rgba)
-    output_path = image_path.with_name(f"{image_path.stem}.luma_bands{image_path.suffix}")
+    output_path = image_path.with_name(f"{image_path.stem}.luma_band{image_path.suffix}")
     cv2.imwrite(str(output_path), result)
     return output_path
 

@@ -1314,7 +1314,7 @@ class App:
             entry.grid(row=row_index, column=1, sticky="ew", pady=1)
             self.custom_fields.append(entry)
         custom_grid.columnconfigure(1, weight=1)
-        preprocess_widget = self._field(custom_grid, "preprocess_mode", self.custom_preprocess_mode, row=len(custom_specs), values=["none", "luma_bands"], readonly=True)
+        preprocess_widget = self._field(custom_grid, "preprocess_mode", self.custom_preprocess_mode, row=len(custom_specs), values=["none", "luma_band"], readonly=True)
         self.custom_fields.append(preprocess_widget)
         custom_actions = Frame(custom_section)
         custom_actions.pack(fill=X, padx=10, pady=(0, 8))
@@ -2432,7 +2432,7 @@ class App:
                             self.queue.put(("status", tr(self.lang, "stopped")))
                             return
                         _drain_generator_output()
-                        preview_files = generated_preview_files(image_path)
+                        preview_files = generated_preview_files(input_image)
                         if preview_files:
                             newest_preview = preview_files[0]
                             preview_mtime = newest_preview.stat().st_mtime
