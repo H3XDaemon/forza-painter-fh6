@@ -54,6 +54,7 @@ from i18n import tr
 LANGUAGES = {
     "English": "en",
     "中文": "zh",
+    "中文 (繁體)": "zh-tw",
     "한국어": "ko",
 }
 
@@ -1466,7 +1467,7 @@ class App:
         seconds = max(0, int(round(seconds)))
         hours, remainder = divmod(seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
-        suffix = {"zh": "剩余", "ko": "남음"}.get(self.lang, "left")
+        suffix = {"zh": "剩余", "zh-tw": "剩餘", "ko": "남음"}.get(self.lang, "left")
         if hours:
             return f"{hours}h {minutes:02d}m {suffix}"
         if minutes:

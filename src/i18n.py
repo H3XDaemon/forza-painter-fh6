@@ -270,6 +270,139 @@ Notes
 - 如果软件找不到安全模板，请确认编辑器仍然打开、模板已经 ungroup、层数填写完全正确。
 """,
     },
+    "zh-tw": {
+        "title": app_title(),
+        "subtitle": "產生 geometry JSON，並匯入到 Forza Horizon 的 Vinyl Group 編輯器。",
+        "language": "語言",
+        "process": "遊戲處理程序",
+        "refresh": "重新整理",
+        "generate_tab": "產生 JSON",
+        "import_tab": "匯入",
+        "tools_tab": "FH6 工具",
+        "tutorial_tab": "教學",
+        "images": "圖片",
+        "add_images": "新增圖片",
+        "remove_image": "移除選取圖片",
+        "quality": "品質設定",
+        "import_preset": "匯入預設",
+        "open_preset_folder": "開啟預設目錄",
+        "custom_settings": "使用自訂參數",
+        "custom_layers": "輸出圖層數",
+        "custom_resolution": "最大解析度",
+        "custom_random": "隨機樣本",
+        "custom_mutated": "變異樣本",
+        "custom_save_at": "儲存檢查點",
+        "preprocess_mode": "預處理模式",
+        "save_custom_preset": "儲存為預設",
+        "custom_panel_title": "自訂參數",
+        "custom_panel_hint": "上方預設會自動填入這些參數；勾選使用自訂參數後可直接修改。",
+        "generate_step_image": "第 1 步 - 選擇圖片",
+        "generate_step_image_hint": "新增 PNG/JPG/BMP 圖片。產生的 JSON 會儲存在原圖片旁邊。",
+        "generate_step_quality": "第 2 步 - 選擇品質",
+        "generate_step_quality_hint": "快速設定耗時較短；慢速設定會佔用更多 GPU 時間，通常畫面較乾淨。",
+        "generate_step_run": "第 3 步 - 開始產生",
+        "generate_step_run_hint": "點擊一次後等待。進度會顯示在日誌中，產生的 JSON 會自動加入匯入頁面。",
+        "scroll_hint": "新增圖片、選擇預設；需要時直接修改下方自訂參數。",
+        "start_generate": "按目前設定產生",
+        "stop_generate": "中斷目前產生",
+        "open_output": "開啟輸出目錄",
+        "preview": "預覽",
+        "preview_hint": "選擇圖片或 JSON 後會在這裡預覽。",
+        "preview_unavailable": "目前環境無法顯示預覽。可安裝選用預覽相依套件，也可以直接繼續產生或匯入。",
+        "logs": "日誌",
+        "export_logs": "匯出詳細日誌",
+        "progress": "進度",
+        "json_files": "Geometry JSON 檔案",
+        "add_json": "新增 JSON",
+        "remove_json": "移除選取 JSON",
+        "use_outputs": "使用已產生 JSON",
+        "step_game": "第 1 步 - 遊戲",
+        "step_game_hint": "啟動 FH6，進入 Vinyl Group Editor，載入未群組的球體模板，然後重新整理處理程序清單。",
+        "step_template": "第 2 步 - 模板",
+        "step_template_hint": "填入遊戲中目前模板顯示的實際圖層數。",
+        "step_json": "第 3 步 - JSON",
+        "step_json_hint": "使用本軟體產生的 JSON，或手動新增 geometry JSON。",
+        "step_import": "第 4 步 - 匯入",
+        "step_import_hint": "只點一次匯入。軟體會安全定位 FH6 圖層表，然後寫入圖案。",
+        "advanced_options": "進階選項",
+        "show_advanced": "顯示進階",
+        "hide_advanced": "隱藏進階",
+        "import_preview": "已選 JSON 預覽",
+        "game_profile": "遊戲設定檔",
+        "pid": "PID",
+        "layer_count": "模板圖層數",
+        "easy_import": "簡易匯入",
+        "easy_import_hint": "FH6 通常不需要手填位址。留空即可重複使用目前 session，或在匯入前自動定位。",
+        "manual_count": "圖層數位址",
+        "manual_table": "圖層表位址",
+        "auto_locate": "自動定位 FH6",
+        "import_json": "匯入 JSON",
+        "diagnose": "診斷",
+        "save_snapshot": "儲存圖層數快照",
+        "compare_snapshot": "比對快照",
+        "snapshot_count": "快照圖層數",
+        "current_count": "目前圖層數",
+        "inspect_table": "檢查 table",
+        "table_address": "候選 table",
+        "admin_note": "匯入需要管理員權限。如果日誌出現 OpenProcess 失敗，請用管理員身分啟動本程式。",
+        "no_game": "未偵測到支援的遊戲處理程序",
+        "ready": "就緒",
+        "running": "執行中",
+        "done": "完成",
+        "failed": "失敗",
+        "stopped": "已中斷",
+        "no_generation_running": "目前沒有正在產生的任務。",
+        "stopping_generation": "正在中斷目前產生…",
+        "generation_stopped": "產生已中斷。",
+        "generator_recycled_layers": "產生器在 {max_layer}/{total} 後回收了被完全遮擋的舊圖層，正在繼續。這是正常回收，不是重新開始。",
+        "existing_checkpoints_found": "發現 {image} 已有 checkpoint JSON：{count} 個，已將最合適的一個加入匯入清單。",
+        "checkpoint_available_after_failure": "雖然本次產生失敗／中斷，但已有 checkpoint 可用：{path}",
+        "imported_presets": "已匯入 {count} 個預設檔案。",
+        "saved_preset": "已儲存預設：{path}",
+        "no_image_selected": "沒有選取圖片。",
+        "no_json_selected": "沒有選取 JSON。",
+        "cannot_resume_checkpoint": "已有 checkpoint 可以重複使用／匯入，但目前 GPU 產生器還不支援真正從 checkpoint 繼續產生。",
+        "locating": "正在尋找目前 FH6 模板…",
+        "locating_wait": "這一步最長可能需要 5 分鐘。請保持 FH6 停留在 Vinyl Group Editor，不要切換選單，耐心等候。",
+        "located": "已安全定位並驗證 FH6 模板。",
+        "importing": "正在匯入 JSON 到 FH6…",
+        "json_too_small": "目前 JSON 可繪製圖層數遠少於模板可用容量，匯入會很模糊；請改用較高圖層數的 JSON。",
+        "json_needs_more_template_layers": "FH 需要預留 4 個邊界圖層，才能正常儲存封面和貼到車上。模板圖層數建議至少為 JSON 可繪製圖層數 + 4。",
+        "safe_stop": "未找到安全 FH6 模板，已在寫入前停止。",
+        "update_available_title": "發現新版本",
+        "update_available_message": "偵測到新版本。\n\n目前版本：v{current}\n最新版本：v{latest}",
+        "update_open_page": "開啟更新頁面",
+        "update_later": "稍後再說",
+        "update_check_failed_title": "更新檢查失敗",
+        "update_check_failed_message": "無法檢查更新。你可以繼續使用目前版本。\n\n{error}",
+        "update_current": "目前已是最新版本。",
+        "changelog": "更新內容",
+        "runtime_folder": "執行／快取目錄",
+        "open_runtime_folder": "開啟執行快取目錄",
+        "runtime_location": "執行快取檔案會儲存在軟體旁邊：{runtime}。FH6 定位快取：{probe}。",
+        "tutorial": """新手流程
+
+1. 從 GitHub Releases 下載單一檔案 EXE，直接執行。一般使用者不需要 Python、.venv 或 bat 檔案。
+
+2. 啟動 Forza Horizon 6，進入 Create Vinyl Group / Vinyl Group Editor。
+
+3. 載入或新建一個由大量 sphere 圖層組成的模板。建議 500 層以上。匯入前必須先 ungroup。
+
+4. 在本軟體的「產生 JSON」頁新增 PNG/JPG/BMP 圖片，選擇品質設定，點擊「開始產生」。
+
+5. 開啟「匯入」頁，新增產生的 JSON，或點擊「使用已產生 JSON」。遊戲設定檔保持 Forza Horizon 6。
+
+6. 填入遊戲中目前模板的實際圖層數。FH6 通常不需要手動填寫記憶體位址。點擊「匯入 JSON」，軟體會在需要時自動定位目前 FH6 圖層表。
+
+7. 如果日誌提示 OpenProcess 或權限失敗，請關閉軟體，用管理員身分重新執行 EXE。如果重啟過遊戲、切換過選單或重新載入模板，請用正確圖層數重新匯入。
+
+說明
+
+- JSON 產生使用內建的 GPU/OpenCL 產生器，請保持顯示卡驅動程式正常。
+- FH6 位址只對目前遊戲處理程序和目前編輯器狀態有效。
+- 如果軟體找不到安全模板，請確認編輯器仍然開啟、模板已經 ungroup、圖層數填寫完全正確。
+""",
+    },
     "ko": {
         "title": app_title(),
         "subtitle": "geometry JSON을 생성하고 Forza Horizon 비닐 그룹 편집기로 가져옵니다.",
@@ -408,4 +541,5 @@ Notes
 
 def tr(lang: str, key: str) -> str:
     """Return the translation for *key* in *lang*, falling back to English."""
-    return TEXT[lang].get(key, TEXT["en"].get(key, key))
+    translations = TEXT.get(lang, TEXT["en"])
+    return translations.get(key, TEXT["en"].get(key, key))
